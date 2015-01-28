@@ -1,0 +1,6 @@
+.project
+boxing/**/packer/packer_cache
+boxing/**/packer/output-*
+download
+upload
+.vagrant/

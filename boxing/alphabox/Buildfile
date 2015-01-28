@@ -1,0 +1,39 @@
+# Subproject of loopin:boxing for alphabox building deployment
+# Please use http://buildr.apache.org/
+require 'time'
+
+name = File.basename(File.dirname(__FILE__))
+version = 'LATEST.' << Time.now.utc.iso8601(3).gsub(/\W/, '')
+layout = Layout.new.tap { |me| me[:target]='../../upload' }
+
+# Start project and build goals definition
+define name, :version=>version, :layout=>layout do
+
+  desc "Trigger boxing build for #{self.name}"
+  task :boxing => 'build'
+
+  desc "Start VM from box #{self.name}"
+  task :boxup do
+    raise "Error for vagrant up: #{$?.exitstatus.to_s}" unless system "vagrant up #{self.name}"
+  end 
+
+  desc "Destroy VM #{self.name}"
+  task :boxdown do
+    raise "Error for vagrant destroy: #{$?.exitstatus.to_s}" unless system "vagrant destroy #{self.name}"
+  end 
+
+  desc "Build box #{self.name}"
+  build do
+    cd 'packer' do
+      raise "Error in packer: #{$?.exitstatus.to_s}" unless system "packer build packer.json"
+    end
+  end
+
+  desc "Clean up box #{self.name}"
+  clean do
+    rm_rf ["#{self.layout[:target]}/#{self.name}.box"]
+  end
+end
+
+# Define custom build goal symbols as global ones
+[:boxing, :boxup, :boxdown].each{ |taskname| Project.local_task taskname}

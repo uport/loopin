@@ -1,0 +1,82 @@
+{
+  "variables": {
+    "HEADLESS_BUILD": false,
+    "BOX_NAME": "alphabox",
+    "BOX_FILE": "../../../upload/alphabox.box",
+    "BOX_CPUS": 2,
+    "BOX_MEMORY": 1024,
+    "BOX_DISK": 2048,
+    "BOX_ISO_URL": "http://cdimage.debian.org/cdimage/release/7.8.0/amd64/iso-cd/debian-7.8.0-amd64-netinst.iso",
+    "BOX_ISO_CHECKSUM_TYPE": "sha512",
+    "BOX_ISO_CHECKSUM": "9792020579824057723446a92ab97d50fdb7af15d265ff4be9081a963e36b3e3e6f44127766219320bc863c6a7ec378388a9d6faa7b51c3f74b259dc9049e071"
+  },
+  "builders": [
+    {
+      "type": "virtualbox-iso",
+      "boot_command": [
+        "<esc><wait>",
+        "install <wait>",
+        "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <wait>",
+        "debian-installer=en_US <wait>",
+        "auto <wait>",
+        "locale=en_US.UTF-8  <wait>",
+        "kbd-chooser/method=de <wait>",
+        "keymap=de <wait>",
+        "bootkbd=de <wait>",
+        "netcfg/get_hostname={{ .Name }} <wait>",
+        "netcfg/get_domain=vagrantup.com <wait>",
+        "fb=false <wait>",
+        "debconf/frontend=noninteractive <wait>",
+        "<enter><wait>"
+      ],
+      "boot_wait": "5s",
+      "headless": "{{user `HEADLESS_BUILD`}}",
+      "disk_size": "{{user `BOX_DISK`}}",
+      "guest_os_type": "Debian_64",
+      "http_directory": "http",
+      "iso_checksum": "{{ user `BOX_ISO_CHECKSUM` }}",
+      "iso_checksum_type": "{{ user `BOX_ISO_CHECKSUM_TYPE` }}",
+      "iso_url": "{{ user `BOX_ISO_URL` }}",
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "10000s",
+      "shutdown_command": "echo 'vagrant'|sudo -S /sbin/shutdown -hP now",
+      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+      "virtualbox_version_file": ".vbox_version",
+      "vm_name": "{{ user `BOX_NAME` }}",
+      "vboxmanage": [
+        [ "modifyvm", "{{.Name}}", "--memory", "{{ user `BOX_MEMORY` }}" ],
+        [ "modifyvm", "{{.Name}}", "--cpus", "{{ user `BOX_CPUS` }}" ]
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+      "scripts": [
+        "scripts/update.sh",
+        "scripts/sshd.sh",
+        "scripts/networking.sh",
+        "scripts/sudoers.sh",
+        "scripts/vagrant.sh",
+        "scripts/vmtools.sh",
+        "scripts/packer.sh",
+        "scripts/docker.sh",
+        "scripts/ruby.sh",
+        "scripts/puppet.sh",
+        "scripts/cleanup.sh"
+      ]
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "type": "vagrant",
+        "compression_level": "9",
+        "output": "{{ user `BOX_FILE` }}"
+      }
+    ]
+  ]
+}
