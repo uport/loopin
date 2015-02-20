@@ -3,39 +3,25 @@
 require 'time'
 
 # BOXES is name of project and containing folder
-name = File.basename(File.dirname("__FILE__"))
+path = File.expand_path("..",__FILE__)
+name = File.basename(path)
 version = 'LATEST.' << Time.now.utc.iso8601(3).gsub(/\W/, '')
 layout = Layout.new.tap { |me| me[:target]='../upload' }
-scope = Buildr.application.current_scope.empty? ? '' : Buildr.application.current_scope.join(':').concat(':')
-
 # Start project and build goals definition
-define "#{scope}#{name}", :version=>version, :layout=>layout do
+define name, :version=>version, :layout=>layout do
 
-  desc "Trigger boxing build for #{self.name}"
-  task :boxing => 'build'
+  Dir["#{path}/*/Buildfile"].each { |file| load file }
 
-  desc "Start VM from box #{self.name}"
-  task :boxup, [:boxes] do |t,args|
-    raise "Error for vagrant up: #{$?.exitstatus.to_s}" unless system "vagrant up #{self.name}"
+  desc "Destroy any VM #{self.name}"
+  task :downall do
+    puts "Need implementation to trigger all tasks of subprojects :down tasks"
   end 
 
-  desc "Destroy VM #{self.name}"
-  task :boxdown, [:boxes] do |t,args|
-    raise "Error for vagrant destroy: #{$?.exitstatus.to_s}" unless system "vagrant destroy #{self.name}"
-  end 
-
-  desc "Build box #{self.name}"
-  task :build, [:boxes] do |t,args|
-    cd 'packer' do
-      raise "Error in packer: #{$?.exitstatus.to_s}" unless system "packer build packer.json"
-    end
-  end
-
-  desc "Clean up box #{self.name}"
-  task :clean, [:boxes] do |t,args|
-    rm_rf ["#{self.layout[:target]}/#{self.name}.box"]
+  desc "Clean any box #{self.name}"
+  task :cleanall do
+    puts "Need implementation to trigger all tasks of subprojects :clean tasks"
   end
 end
 
 # Define custom build goal symbols as global ones
-[:boxing, :boxup, :boxdown].each{ |taskname| Project.local_task taskname}
+[:downall, :cleanall].each{ |taskname| Project.local_task taskname}

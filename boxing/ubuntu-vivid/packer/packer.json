@@ -1,0 +1,88 @@
+{
+    "variables": {
+        "HEADLESS_BUILD": false,
+        "BOX_NAME": "ubuntu-vivid",
+        "BOX_FILE": "../../../upload/ubuntu-vivid.box",
+        "BOX_CPUS": 2,
+        "BOX_MEMORY": 1024,
+        "BOX_DISK": 2048,
+        "BOX_ISO_URL": "http://cdimage.ubuntu.com/ubuntu-server/daily/current/vivid-server-amd64.iso"
+    },
+    "builders": [{
+        "type": "virtualbox-iso",
+        "vboxmanage": [
+            ["modifyvm", "{{.Name}}", "--cpus", "{{ user `BOX_CPUS` }}"],
+            ["modifyvm", "{{.Name}}", "--memory", "{{ user `BOX_MEMORY` }}"],
+            ["modifyvm", "{{.Name}}", "--vram", "32"],
+            ["modifyvm", "{{.Name}}", "--acpi", "on"],
+            ["modifyvm", "{{.Name}}", "--ioapic", "on"],
+            ["modifyvm", "{{.Name}}", "--hwvirtex", "on"],
+            ["modifyvm", "{{.Name}}", "--nestedpaging", "on"],
+            ["modifyvm", "{{.Name}}", "--largepages", "on"],
+            ["modifyvm", "{{.Name}}", "--pae", "off"],
+            ["modifyvm", "{{.Name}}", "--rtcuseutc", "on"],
+            ["storagectl", "{{.Name}}", "--name", "SATA Controller", "--hostiocache", "on"],
+            ["storageattach", "{{.Name}}", "--storagectl", "SATA Controller", "--port", "0", "--type", "hdd", "--nonrotational", "on"]
+        ],
+        "vm_name": "{{ user `BOX_NAME` }}",
+        "headless": "{{user `HEADLESS_BUILD`}}",
+        "disk_size": "{{user `BOX_DISK`}}",
+        "guest_os_type": "Ubuntu_64",
+        "hard_drive_interface": "sata",
+        "iso_url": "{{ user `BOX_ISO_URL` }}",
+        "iso_checksum_type": "none",
+
+        "http_directory" : "http",
+
+        "ssh_username": "vagrant",
+        "ssh_password": "vagrant",
+        "ssh_port": 22,
+        "ssh_wait_timeout": "10000s",
+
+        "shutdown_command": "echo 'vagrant' | sudo -S shutdown -P now",
+        "boot_wait": "5s",
+        "boot_command" : [
+            "<esc><esc><enter><wait>",
+            "/install/vmlinuz noapic ",
+            "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
+            "locale=en_US.UTF-8 kbd-chooser/method=de keymap=de bootkbd=de ",
+            "hostname={{ .Name }} netcfg/get_domain=vagrantup.com ",
+            "fb=false debconf/frontend=noninteractive ",
+            "initrd=/install/initrd.gz -- <enter>"
+        ]
+    }],
+
+    "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S sh '{{.Path}}'",
+      "override": {
+        "virtualbox-iso": {
+          "scripts": [
+            "scripts/kernel.sh",
+            "scripts/fstab.sh",
+            "scripts/base-packages.sh",
+            "scripts/packer.sh",
+            "scripts/virtualbox.sh",
+            "scripts/vagrant.sh",
+            "scripts/docker.sh",
+            "scripts/socketplane.sh",
+            "scripts/java.sh"
+          ]
+        }
+      }
+    }
+    ],
+
+    "post-processors": [
+    {
+      "type": "vagrant",
+      "only": ["virtualbox-iso"],
+      "compression_level": 9,
+      "vagrantfile_template": "./Vagrantfile.template",
+      "output": "{{ user `BOX_FILE` }}"
+
+    }
+    ]
+}
+

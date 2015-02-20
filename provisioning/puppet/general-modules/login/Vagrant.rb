@@ -3,12 +3,12 @@
 Vagrant.configure("2") do |config|
 
   # Set name of box to its folder name
-  name = File.basename(File.expand_path('..',__FILE__))
+  name = 'puppet-' << File.basename(File.expand_path('..',__FILE__))
   projectpath = File.expand_path('../../..',__FILE__)
 
   config.vm.define name do |instance|
     instance.vm.box = name
-    instance.vm.box_url = "#{projectpath}/upload/#{name}.box"
+    instance.vm.box_url = "#{projectpath}/upload/alphabox.box"
 
     instance.vm.provision :shell, :inline => 'date > /etc/vagrant_provisioned_at'
 
@@ -20,7 +20,7 @@ Vagrant.configure("2") do |config|
       vm.gui = true
       vm.customize [
         "modifyvm", :id,
-#        "--groups", "/Vagrant",
+        "--groups", "/Vagrant",
         "--cpuexecutioncap", "50",
         "--memory", 1024
       ]

@@ -1,4 +1,4 @@
-# Included by our Vagrantfile for handling single alphabox VM
+# Included by our Vagrantfile for handling single ubuntu VM
 # Please use http://www.vagrantup.com/
 Vagrant.configure("2") do |config|
 

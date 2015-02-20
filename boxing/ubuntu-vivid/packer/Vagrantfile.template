@@ -1,0 +1,35 @@
+Vagrant.configure("2") do |config|
+
+$script = <<SCRIPT
+#######################################################
+# Add commands for startup here                       #
+#######################################################
+  date > /etc/vagrant_provisioned_at
+
+SCRIPT
+
+  config.vm.provision :shell, :inline => $script
+
+  # Any .box file in will create a config entry using file basename as ID
+  definitions = Dir['*.box'].map {|name| File.basename(name, '.box')}
+  definitions.each do |box|
+    # Working arround the "stdin: is not a tty" error
+    config.ssh.pty = true
+  
+    config.vm.define box do |boxconfig|
+      boxconfig.vm.box = "#{box}"
+      boxconfig.vm.box_url = "#{box}.box"
+      boxconfig.vm.synced_folder '../../../', '/workspace', create: true
+      
+      boxconfig.vm.provider :virtualbox  do |vbox|
+        vbox.gui = true
+
+#######################################################
+# Add override startup options for VM here            #
+#######################################################
+#        vbox.customize ["modifyvm", :id, "--cpuexecutioncap", "50", "--memory", 1024]
+
+      end
+    end
+  end
+end

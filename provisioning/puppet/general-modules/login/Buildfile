@@ -1,0 +1,30 @@
+# Subproject of loopin:boxing for alphabox building deployment
+# Please use http://buildr.apache.org/
+require 'time'
+
+name = File.basename(File.dirname(__FILE__))
+version = 'LATEST.' << Time.now.utc.iso8601(3).gsub(/\W/, '')
+layout = Layout.new.tap { |me| me[:target]='../../upload' }
+
+# Start project and build goals definition
+define name, :version=>version, :layout=>layout do
+
+  desc "Start VM from box #{self.name}"
+  task :boxup => 'build'
+
+  desc "Destroy VM #{self.name}"
+  task :boxdown => 'clean'
+
+  desc "Start VM from box #{self.name}"
+  build do
+    raise "Error for vagrant up: #{$?.exitstatus.to_s}" unless system "vagrant up #{self.name}"
+  end
+
+  desc "Destroy VM #{self.name}"
+  clean do
+    raise "Error for vagrant destroy: #{$?.exitstatus.to_s}" unless system "vagrant destroy #{self.name}"
+  end
+end
+
+# Define custom build goal symbols as global ones
+[:boxup, :boxdown].each{ |taskname| Project.local_task taskname}

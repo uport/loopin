@@ -11,3 +11,6 @@ apt-get -y update
 # Install puppet/facter
 apt-get -y install puppet facter
 rm -f puppetlabs-release-${LSB_RELEASE}.deb
+
+# Install standard modules
+puppet module install puppetlabs-stdlib

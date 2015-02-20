@@ -1,4 +1,4 @@
-# Subproject of loopin:boxing for alphabox building deployment
+# Subproject of loopin:boxing for ubuntu-vivid building deployment
 # Please use http://buildr.apache.org/
 require 'time'
 
