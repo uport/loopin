@@ -1,7 +1,8 @@
-# Subproject of loopin:boxing for ubuntu-vivid building deployment
+# Subproject of loopin:boxing for ubuntu-vivid building and deployment
 # Please use http://buildr.apache.org/
 require 'time'
 
+# Helpers for project definition
 name = File.basename(File.dirname(__FILE__))
 version = 'LATEST.' << Time.now.utc.iso8601(3).gsub(/\W/, '')
 layout = Layout.new.tap { |me| me[:target]='../../upload' }
@@ -10,27 +11,27 @@ scope = Buildr.application.current_scope.empty? ? '' : Buildr.application.curren
 # Start project and build goals definition
 define "#{scope}#{name}", :version=>version, :layout=>layout do
 
-  desc "Start VM from box #{self.name}"
+  desc "Start VM from box #{name}"
   task :up do
-    raise "Error for vagrant up: #{$?.exitstatus.to_s}" unless system "vagrant up #{self.name}"
+    raise "Error for vagrant up: #{$?.exitstatus.to_s}" unless system "vagrant up #{name}"
   end 
 
-  desc "Destroy VM #{self.name}"
+  desc "Destroy VM #{name}"
   task :down do
-    raise "Error for vagrant destroy: #{$?.exitstatus.to_s}" unless system "vagrant destroy #{self.name} --force"
+    raise "Error for vagrant destroy: #{$?.exitstatus.to_s}" unless system "vagrant destroy #{name} --force"
   end 
 
-  desc "Build box #{self.name}"
+  desc "Build box #{name}"
   build do
     cd 'packer' do
       raise "Error in packer: #{$?.exitstatus.to_s}" unless system "packer build packer.json"
     end
   end
 
-  desc "Clean up box #{self.name}"
+  desc "Clean up box #{name}"
   clean do
-    rm_rf ["#{self.layout[:target]}/#{self.name}.box"]
-    system "vagrant box remove #{self.name}"
+    rm_rf ["#{self.layout[:target]}/#{name}.box"]
+    system "vagrant box remove #{name}"
   end
 end
 

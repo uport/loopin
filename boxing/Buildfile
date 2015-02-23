@@ -1,25 +1,25 @@
-# Subproject of loopin:boxing for alphabox building deployment
+# Project boxing for building vagrant boxes
 # Please use http://buildr.apache.org/
 require 'time'
 
-# BOXES is name of project and containing folder
-path = File.expand_path("..",__FILE__)
-name = File.basename(path)
+# Helpers for project definition
 version = 'LATEST.' << Time.now.utc.iso8601(3).gsub(/\W/, '')
 layout = Layout.new.tap { |me| me[:target]='../upload' }
-# Start project and build goals definition
-define name, :version=>version, :layout=>layout do
 
+# Start project and build goals definition
+define 'boxing', :version=>version, :layout=>layout do
+
+  path = File.expand_path("..",__FILE__)
   Dir["#{path}/*/Buildfile"].each { |file| load file }
 
-  desc "Destroy any VM #{self.name}"
+  desc "Destroy any VM of boxing sub-projects"
   task :downall do
-    puts "Need implementation to trigger all tasks of subprojects :down tasks"
+    project.projects.map{ |child| task("#{child.name}:down") }.each { |down| down.execute unless down.nil? }
   end 
 
-  desc "Clean any box #{self.name}"
+  desc "Clean any box of sub-projects"
   task :cleanall do
-    puts "Need implementation to trigger all tasks of subprojects :clean tasks"
+    project.projects.map{ |child| task("#{child.name}:clean") }.each { |clean| clean.execute unless clean.nil? }
   end
 end
 

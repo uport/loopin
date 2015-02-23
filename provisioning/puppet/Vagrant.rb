@@ -3,9 +3,8 @@
 Vagrant.configure("2") do |config|
 
   # Set name of box to its folder name
-  name = 'puppet-' << File.basename(File.expand_path('..',__FILE__))
-  modulepath = File.expand_path('../..',__FILE__)
-  projectpath = File.expand_path('../../../../..',__FILE__)
+  name = 'puppet'
+  projectpath = File.expand_path('../../..',__FILE__)
 
   config.vm.define name do |instance|
     instance.vm.box = 'alphabox'
@@ -27,17 +26,5 @@ Vagrant.configure("2") do |config|
         "--memory", 1024
       ]
     end
-
-    instance.vm.provision :shell do |shell|
-      shell.inline = 'puppet module install puppetlabs/stdlib'
-    end
-
-    instance.vm.provision :puppet do |puppet|
-      puppet.module_path = modulepath
-      puppet.manifests_path = "#{modulepath}/login/tests"
-      puppet.manifest_file = 'init.pp'
-      puppet.options = '--verbose --debug'
-    end
-
   end
 end

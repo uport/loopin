@@ -31,7 +31,7 @@ define login::user ($membership,$user_map)
 
     "/home/${title}/.ssh/authorized_keys":
       ensure => file,
-      mode   => 444,
-      source => "puppet:///modules/${module_name}/${title}";
+      mode   => 400,
+      source => "puppet:///modules/${module_name}/keys/${title}";
   }
 }

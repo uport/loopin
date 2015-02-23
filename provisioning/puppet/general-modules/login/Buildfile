@@ -1,30 +1,34 @@
-# Subproject of loopin:boxing for alphabox building deployment
+# Subproject of loopin:provisioning for login puppet module testing
 # Please use http://buildr.apache.org/
 require 'time'
 
+# Helpers for project definition
 name = File.basename(File.dirname(__FILE__))
 version = 'LATEST.' << Time.now.utc.iso8601(3).gsub(/\W/, '')
 layout = Layout.new.tap { |me| me[:target]='../../upload' }
+scope = Buildr.application.current_scope.empty? ? '' : Buildr.application.current_scope.join(':').concat(':')
 
 # Start project and build goals definition
-define name, :version=>version, :layout=>layout do
+define "#{scope}#{name}", :version=>version, :layout=>layout do
 
-  desc "Start VM from box #{self.name}"
-  task :boxup => 'build'
+  box = "puppet-#{name}"
+  
+  desc "Start VM from box #{box}"
+  task :up => 'build'
 
-  desc "Destroy VM #{self.name}"
-  task :boxdown => 'clean'
+  desc "Destroy VM #{box}"
+  task :down => 'clean'
 
-  desc "Start VM from box #{self.name}"
+  desc "Start VM from box #{box}"
   build do
-    raise "Error for vagrant up: #{$?.exitstatus.to_s}" unless system "vagrant up #{self.name}"
+    raise "Error for vagrant up: #{$?.exitstatus.to_s}" unless system "vagrant up #{box}"
   end
 
-  desc "Destroy VM #{self.name}"
+  desc "Destroy VM #{box}"
   clean do
-    raise "Error for vagrant destroy: #{$?.exitstatus.to_s}" unless system "vagrant destroy #{self.name}"
+    raise "Error for vagrant destroy: #{$?.exitstatus.to_s}" unless system "vagrant destroy #{box}"
   end
 end
 
 # Define custom build goal symbols as global ones
-[:boxup, :boxdown].each{ |taskname| Project.local_task taskname}
+[:up, :down].each{ |taskname| Project.local_task taskname} 
