@@ -9,7 +9,8 @@ version = 'LATEST.' << Time.now.utc.iso8601(3).gsub(/\W/, '')
 define 'tests', :version=>version do
 
   path = File.expand_path("..",__FILE__)
-  targets = Dir["#{path}/serverspec/spec/*"].select { |entry| File.directory?(entry) }
+  targets = Dir["#{path}/serverspec/spec/*"]
+  targets.select! { |entry| File.directory?(entry) }
   targets.map! { |entry| File.basename(entry) }
 
   targets.each do |target|
