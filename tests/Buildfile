@@ -1,0 +1,38 @@
+# Project boxing for building vagrant boxes
+# Please use http://buildr.apache.org/
+require 'time'
+
+# Helpers for project definition
+version = 'LATEST.' << Time.now.utc.iso8601(3).gsub(/\W/, '')
+
+# Start project and build goals definition
+define 'tests', :version=>version do
+
+  path = File.expand_path("..",__FILE__)
+  targets = Dir["#{path}/serverspec/spec/*"].select { |entry| File.directory?(entry) }
+  targets.map! { |entry| File.basename(entry) }
+
+  targets.each do |target|
+    define target, :version=>version do
+      desc "Run tests for #{target}"
+      test do
+        Dir.chdir("#{path}/serverspec") do
+          next if system "bundle exec rake spec:#{target}"
+          raise "Error calling rake spec:#{target}: #{$?.exitstatus.to_s}"
+        end
+      end
+    end
+  end
+
+  desc "Run all tests"
+  task :testall => 'build'
+  
+  desc "Run all tests"
+  build do
+    targets.each { |name| with task "#{name}:test" }
+  end
+
+end
+
+# Define custom build goal symbols as global ones
+[:testall].each{ |taskname| Project.local_task taskname}

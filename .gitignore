@@ -4,3 +4,4 @@ boxing/**/packer/output-*
 download
 upload
 .vagrant/
+tests/serverspec/Gemfile.lock

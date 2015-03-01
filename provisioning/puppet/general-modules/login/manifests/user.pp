@@ -13,6 +13,7 @@ define login::user ($membership,$user_map)
     groups => $membership,
     home   => "/home/${title}",
     managehome => true,
+    shell  => '/bin/bash',
   }
   
   File {

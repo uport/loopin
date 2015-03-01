@@ -1,18 +1,18 @@
-# Project boxing for building vagrant boxes
+# Project puppet for testing with vagrant boxes
 # Please use http://buildr.apache.org/
 require 'time'
 
 # Helpers for project definition
 version = 'LATEST.' << Time.now.utc.iso8601(3).gsub(/\W/, '')
-layout = Layout.new.tap { |me| me[:target]='../upload' }
+layout = Layout.new.tap { |me| me[:target]='../../upload' }
 
 # Start project and build goals definition
-define 'boxing', :version=>version, :layout=>layout do
+define 'puppet', :version=>version, :layout=>layout do
 
   path = File.expand_path("..",__FILE__)
-  Dir["#{path}/*/Buildfile"].each { |file| load file }
+  Dir["#{path}/*/*/Buildfile"].each { |file| load file }
 
-  desc "Destroy any VM of boxing sub-projects"
+  desc "Destroy any VM of sub-projects"
   task :downall do
     project.projects.map{ |child| task("#{child.name}:down") }.each do |down|
       down.execute unless down.nil?
