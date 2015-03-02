@@ -3,32 +3,31 @@
 require 'time'
 
 # Helpers for project definition
-name = File.basename(File.dirname(__FILE__))
-version = 'LATEST.' << Time.now.utc.iso8601(3).gsub(/\W/, '')
-layout = Layout.new.tap { |me| me[:target]='../../upload' }
-scope = Buildr.application.current_scope.empty? ? '' : Buildr.application.current_scope.join(':').concat(':')
+my_name = File.basename(File.dirname(__FILE__))
+my_version = 'LATEST.' << Time.now.utc.iso8601(3).gsub(/\W/, '')
 
-# Start project and build goals definition
-define "#{scope}#{name}", :version=>version, :layout=>layout do
+# Special handling if project will be included as a sub-project
+if Buildr.application.current_scope.empty? then
+  # Define custom build goal symbols as global ones
+  [:up, :down].each{ |taskname| Project.local_task taskname}
+  scope = ''
+else
+  scope = Buildr.application.current_scope.join(':').concat(':')
+end
 
-  box = "puppet-#{name}"
-  
+
+# Here we start with project and build goals definition
+define "#{scope}#{my_name}", :version=>my_version do
+
+  box = "puppet-#{my_name}"
+
   desc "Start VM from box #{box}"
-  task :up => 'build'
-
-  desc "Destroy VM #{box}"
-  task :down => 'clean'
-
-  desc "Start VM from box #{box}"
-  build do
+  task :up do
     raise "Error for vagrant up: #{$?.exitstatus.to_s}" unless system "vagrant up #{box}"
   end
 
   desc "Destroy VM #{box}"
-  clean do
-    raise "Error for vagrant destroy: #{$?.exitstatus.to_s}" unless system "vagrant destroy #{box}"
+  task :down do
+    raise "Error for vagrant destroy: #{$?.exitstatus.to_s}" unless system "vagrant destroy #{box} --force"
   end
 end
-
-# Define custom build goal symbols as global ones
-[:up, :down].each{ |taskname| Project.local_task taskname} 

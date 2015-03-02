@@ -3,10 +3,10 @@
 require 'time'
 
 # Helpers for project definition
-version = 'LATEST.' << Time.now.utc.iso8601(3).gsub(/\W/, '')
+my_version = 'LATEST.' << Time.now.utc.iso8601(3).gsub(/\W/, '')
 
 # Start project and build goals definition
-define 'tests', :version=>version do
+define 'tests', :version=>my_version do
 
   path = File.expand_path("..",__FILE__)
   targets = Dir["#{path}/serverspec/spec/*"]
@@ -14,10 +14,10 @@ define 'tests', :version=>version do
   targets.map! { |entry| File.basename(entry) }
 
   targets.each do |target|
-    define target, :version=>version do
+    define target, :version=>my_version do
       desc "Run tests for #{target}"
       test do
-        Dir.chdir("#{path}/serverspec") do
+        cd "#{path}/serverspec" do
           next if system "bundle exec rake spec:#{target}"
           raise "Error calling rake spec:#{target}: #{$?.exitstatus.to_s}"
         end

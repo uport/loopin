@@ -3,37 +3,44 @@
 require 'time'
 
 # Helpers for project definition
-name = File.basename(File.dirname(__FILE__))
-version = 'LATEST.' << Time.now.utc.iso8601(3).gsub(/\W/, '')
-layout = Layout.new.tap { |me| me[:target]='../../upload' }
-scope = Buildr.application.current_scope.empty? ? '' : Buildr.application.current_scope.join(':').concat(':')
+my_name = File.basename(File.dirname(__FILE__))
+my_version = 'LATEST.' << Time.now.utc.iso8601(3).gsub(/\W/, '')
+my_layout = Layout.new
+my_layout[:target] = File.expand_path("../../../upload",__FILE__)
 
-# Start project and build goals definition
-define "#{scope}#{name}", :version=>version, :layout=>layout do
+# Special handling if project will be included as a sub-project
+if Buildr.application.current_scope.empty? then
+  # Define custom build goal symbols as global ones
+  [:up, :down].each{ |taskname| Project.local_task taskname}
+  scope = ''
+else
+  scope = Buildr.application.current_scope.join(':').concat(':')
+end
 
-  desc "Start VM from box #{name}"
+
+# Here we start with project and build goals definition
+define "#{scope}#{my_name}", :version=>my_version, :layout=>my_layout do
+
+  desc "Start VM from box #{my_name}"
   task :up do
-    raise "Error for vagrant up: #{$?.exitstatus.to_s}" unless system "vagrant up #{name}"
-  end 
+    raise "Error for vagrant up: #{$?.exitstatus.to_s}" unless system "vagrant up #{my_name}"
+  end
 
-  desc "Destroy VM #{name}"
+  desc "Destroy VM #{my_name}"
   task :down do
-    raise "Error for vagrant destroy: #{$?.exitstatus.to_s}" unless system "vagrant destroy #{name} --force"
-  end 
+    raise "Error for vagrant destroy: #{$?.exitstatus.to_s}" unless system "vagrant destroy #{my_name} --force"
+  end
 
-  desc "Build box #{name}"
+  desc "Build box #{my_name}"
   build do
-    cd 'packer' do
+    cd File.expand_path("../packer",__FILE__) do
       raise "Error in packer: #{$?.exitstatus.to_s}" unless system "packer build packer.json"
     end
   end
 
-  desc "Clean up box #{name}"
+  desc "Clean up box #{my_name}"
   clean do
-    rm_rf ["#{self.layout[:target]}/#{name}.box"]
-    system "vagrant box remove #{name}"
+    rm_rf ["#{self.layout[:target]}/#{my_name}.box"]
+    system "vagrant box remove #{my_name}"
   end
 end
-
-# Define custom build goal symbols as global ones
-[:up, :down].each{ |taskname| Project.local_task taskname}

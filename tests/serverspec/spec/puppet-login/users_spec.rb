@@ -7,7 +7,7 @@ describe user('administrator') do
   it { should belong_to_group 'users' }
   it { should have_home_directory '/home/administrator' }
   it { should have_login_shell '/bin/bash' }
-  it { should have_authorized_key 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++== replace-this' }
+  it { should have_authorized_key 'ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAACEAntVfRe4SfcmwulK1zEiOBrrd4ga1tfAsgFLsSQp7Ah8= replace-this' }
 end
 
 describe user('developer') do
@@ -17,7 +17,7 @@ describe user('developer') do
   it { should belong_to_group 'users' }
   it { should have_home_directory '/home/developer' }
   it { should have_login_shell '/bin/bash' }
-  it { should have_authorized_key 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++== replace-this' }
+  it { should have_authorized_key 'ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAACEAntVfRe4SfcmwulK1zEiOBrrd4ga1tfAsgFLsSQp7Ah8= replace-this' }
 end
 
 describe user('guest') do
@@ -27,7 +27,7 @@ describe user('guest') do
   it { should belong_to_group 'users' }
   it { should have_home_directory '/home/guest' }
   it { should have_login_shell '/bin/bash' }
-  it { should have_authorized_key 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++== replace-this' }
+  it { should have_authorized_key 'ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAACEAntVfRe4SfcmwulK1zEiOBrrd4ga1tfAsgFLsSQp7Ah8= replace-this' }
 end
 
 describe user('inactive') do

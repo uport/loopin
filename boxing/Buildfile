@@ -3,11 +3,12 @@
 require 'time'
 
 # Helpers for project definition
-version = 'LATEST.' << Time.now.utc.iso8601(3).gsub(/\W/, '')
-layout = Layout.new.tap { |me| me[:target]='../upload' }
+my_version = 'LATEST.' << Time.now.utc.iso8601(3).gsub(/\W/, '')
+my_layout = Layout.new
+my_layout[:target] = File.expand_path("../../upload",__FILE__)
 
 # Start project and build goals definition
-define 'boxing', :version=>version, :layout=>layout do
+define 'boxing', :version=>my_version, :layout=>my_layout do
 
   path = File.expand_path("..",__FILE__)
   Dir["#{path}/*/Buildfile"].each { |file| load file }

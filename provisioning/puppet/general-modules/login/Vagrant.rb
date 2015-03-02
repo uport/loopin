@@ -3,8 +3,9 @@
 Vagrant.configure("2") do |config|
 
   # Set name of box to its folder name
-  name = 'puppet-' << File.basename(File.expand_path('..',__FILE__))
-  modulepath = File.expand_path('../..',__FILE__)
+  path = File.expand_path('..',__FILE__)
+  name = 'puppet-' << File.basename(path)
+  modulepath = File.expand_path('../../..',__FILE__)
   projectpath = File.expand_path('../../../../..',__FILE__)
 
   config.vm.define name do |instance|
@@ -15,7 +16,7 @@ Vagrant.configure("2") do |config|
 
     instance.vm.synced_folder '~/.buildr/', '/home/vagrant/.buildr'
     instance.vm.synced_folder "#{projectpath}/", '/vagrant'
-    instance.vm.synced_folder "#{projectpath}/provisioning/puppet/", '/etc/puppet/modules'
+    instance.vm.synced_folder "#{modulepath}/", '/home/vagrant/.puppet/modules'
 
     instance.vm.provider :virtualbox do |vm|
       vm.name = "Vagrant - " << name
@@ -29,14 +30,15 @@ Vagrant.configure("2") do |config|
     end
 
     instance.vm.provision :shell do |shell|
-      shell.inline = 'puppet module install puppetlabs/stdlib'
+      shell.inline = 'puppet module install puppetlabs/stdlib --modulepath=/tmp/modules'
     end
 
     instance.vm.provision :puppet do |puppet|
-      puppet.module_path = modulepath
-      puppet.manifests_path = "#{modulepath}/login/tests"
+      puppet.module_path = Dir["#{modulepath}/*"].select { |entry| File.directory?(entry) }
+      puppet.manifests_path = "#{path}/tests"
       puppet.manifest_file = 'init.pp'
-      puppet.options = '--verbose --debug'
+      puppet.temp_dir = '/tmp'
+      puppet.options = '--modulepath=/tmp/modules --verbose --debug'
     end
 
   end
